@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- hapus meta refresh karena pake AJAX -->
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-white-50 small">{{ t('total_units') }}</div>
+                    <div class="h2 mb-0 fw-bold">{{ total_units_count }}</div>
+                </div>
+                <div class="fas fa-server fa-2x text-info opacity-50"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-white-50 small">{{ t('active_alarms') }}</div>
+                    <div class="h2 mb-0 fw-bold text-danger" id="total_alarms">{{ active_alarms_count }}</div>
+                </div>
+                <div class="fas fa-exclamation-triangle fa-2x text-danger opacity-50"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-white-50 small">Online</div>
+                    <div class="h2 mb-0 fw-bold text-success" id="total_online">{{ online_count }}/{{ total_units_count }}</div>
+                </div>
+                <div class="fas fa-wifi fa-2x text-success opacity-50"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mb-4 fw-bold"><i class="fas fa-layer-group me-2"></i>{{ t('unit_menu') }}</h4>
+
+<!-- Unit Cards -->
+<div class="row g-4">
+    <!-- Unit 1 -->
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center" style="min-height: 350px;">
+            <div class="position-absolute top-0 end-0 m-3" id="status1_badge">
+                {% if units['Unit 1'].status == 'Gawat' %}
+                <span class="badge bg-danger bg-opacity-25 py-2 px-3">
+                    <span class="status-dot status-gawat me-2"></span><span id="status1">{{ t('gawat') }}</span>
+                </span>
+                {% elif units['Unit 1'].status == 'Perlu_Cek' %}
+                <span class="badge bg-warning bg-opacity-25 py-2 px-3 text-dark">
+                    <span class="status-dot status-perlu-cek me-2"></span><span id="status1">{{ t('perlu_cek') }}</span>
+                </span>
+                {% else %}
+                <span class="badge bg-success bg-opacity-25 py-2 px-3">
+                    <span class="status-dot status-normal me-2"></span><span id="status1">{{ t('normal') }}</span>
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="my-4">
+                <img src="{{ url_for('static', filename='images/compressor.png') }}" alt="Unit 1" style="width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 0 20px rgba(6,182,212,0.3));">
+            </div>
+            
+            <h3 class="fw-bold mb-4">Unit 1</h3>
+            
+            <div class="text-start px-4">
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-white border-opacity-10">
+                    <span><i class="fas fa-thermometer-half me-2 text-info"></i>{{ t('temperature') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 1'].temp > 85 else 'text-warning' if units['Unit 1'].temp > 68 else 'text-white' }}" id="temp1">{{ "%.1f"|format(units['Unit 1'].temp) }}°C</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-white border-opacity-10">
+                    <span><i class="fas fa-wave-square me-2 text-warning"></i>{{ t('vibration') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 1'].vib > 40 else 'text-warning' if units['Unit 1'].vib > 32 else 'text-white' }}" id="vib1">{{ "%.1f"|format(units['Unit 1'].vib) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span><i class="fas fa-volume-up me-2 text-success"></i>{{ t('noise') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 1'].noise > 80 else 'text-warning' if units['Unit 1'].noise > 64 else 'text-white' }}" id="noise1">{{ "%.1f"|format(units['Unit 1'].noise) }} dB</span>
+                </div>
+            </div>
+            
+            <a href="{{ url_for('detail', name='Unit 1') }}" class="btn btn-outline-info w-100 mt-3 rounded-pill">
+                <i class="fas fa-eye me-1"></i> {{ t('view_details') }}
+            </a>
+        </div>
+    </div>
+    
+    <!-- Unit 2 -->
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center" style="min-height: 350px;">
+            <div class="position-absolute top-0 end-0 m-3" id="status2_badge">
+                {% if units['Unit 2'].status == 'Gawat' %}
+                <span class="badge bg-danger bg-opacity-25 py-2 px-3">
+                    <span class="status-dot status-gawat me-2"></span><span id="status2">{{ t('gawat') }}</span>
+                </span>
+                {% elif units['Unit 2'].status == 'Perlu_Cek' %}
+                <span class="badge bg-warning bg-opacity-25 py-2 px-3 text-dark">
+                    <span class="status-dot status-perlu-cek me-2"></span><span id="status2">{{ t('perlu_cek') }}</span>
+                </span>
+                {% else %}
+                <span class="badge bg-success bg-opacity-25 py-2 px-3">
+                    <span class="status-dot status-normal me-2"></span><span id="status2">{{ t('normal') }}</span>
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="my-4">
+                <img src="{{ url_for('static', filename='images/compressor.png') }}" alt="Unit 2" style="width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 0 20px rgba(6,182,212,0.3));">
+            </div>
+            
+            <h3 class="fw-bold mb-4">Unit 2</h3>
+            
+            <div class="text-start px-4">
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-white border-opacity-10">
+                    <span><i class="fas fa-thermometer-half me-2 text-info"></i>{{ t('temperature') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 2'].temp > 85 else 'text-warning' if units['Unit 2'].temp > 68 else 'text-white' }}" id="temp2">{{ "%.1f"|format(units['Unit 2'].temp) }}°C</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-white border-opacity-10">
+                    <span><i class="fas fa-wave-square me-2 text-warning"></i>{{ t('vibration') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 2'].vib > 40 else 'text-warning' if units['Unit 2'].vib > 32 else 'text-white' }}" id="vib2">{{ "%.1f"|format(units['Unit 2'].vib) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span><i class="fas fa-volume-up me-2 text-success"></i>{{ t('noise') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 2'].noise > 80 else 'text-warning' if units['Unit 2'].noise > 64 else 'text-white' }}" id="noise2">{{ "%.1f"|format(units['Unit 2'].noise) }} dB</span>
+                </div>
+            </div>
+            
+            <a href="{{ url_for('detail', name='Unit 2') }}" class="btn btn-outline-info w-100 mt-3 rounded-pill">
+                <i class="fas fa-eye me-1"></i> {{ t('view_details') }}
+            </a>
+        </div>
+    </div>
+    
+    <!-- Unit 3 -->
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center" style="min-height: 350px;">
+            <div class="position-absolute top-0 end-0 m-3" id="status3_badge">
+                {% if units['Unit 3'].status == 'Gawat' %}
+                <span class="badge bg-danger bg-opacity-25 py-2 px-3">
+                    <span class="status-dot status-gawat me-2"></span><span id="status3">{{ t('gawat') }}</span>
+                </span>
+                {% elif units['Unit 3'].status == 'Perlu_Cek' %}
+                <span class="badge bg-warning bg-opacity-25 py-2 px-3 text-dark">
+                    <span class="status-dot status-perlu-cek me-2"></span><span id="status3">{{ t('perlu_cek') }}</span>
+                </span>
+                {% else %}
+                <span class="badge bg-success bg-opacity-25 py-2 px-3">
+                    <span class="status-dot status-normal me-2"></span><span id="status3">{{ t('normal') }}</span>
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="my-4">
+                <img src="{{ url_for('static', filename='images/compressor.png') }}" alt="Unit 3" style="width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 0 20px rgba(6,182,212,0.3));">
+            </div>
+            
+            <h3 class="fw-bold mb-4">Unit 3</h3>
+            
+            <div class="text-start px-4">
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-white border-opacity-10">
+                    <span><i class="fas fa-thermometer-half me-2 text-info"></i>{{ t('temperature') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 3'].temp > 85 else 'text-warning' if units['Unit 3'].temp > 68 else 'text-white' }}" id="temp3">{{ "%.1f"|format(units['Unit 3'].temp) }}°C</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-white border-opacity-10">
+                    <span><i class="fas fa-wave-square me-2 text-warning"></i>{{ t('vibration') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 3'].vib > 40 else 'text-warning' if units['Unit 3'].vib > 32 else 'text-white' }}" id="vib3">{{ "%.1f"|format(units['Unit 3'].vib) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span><i class="fas fa-volume-up me-2 text-success"></i>{{ t('noise') }}</span>
+                    <span class="fw-bold {{ 'text-danger' if units['Unit 3'].noise > 80 else 'text-warning' if units['Unit 3'].noise > 64 else 'text-white' }}" id="noise3">{{ "%.1f"|format(units['Unit 3'].noise) }} dB</span>
+                </div>
+            </div>
+            
+            <a href="{{ url_for('detail', name='Unit 3') }}" class="btn btn-outline-info w-100 mt-3 rounded-pill">
+                <i class="fas fa-eye me-1"></i> {{ t('view_details') }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

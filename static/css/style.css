@@ -1,0 +1,45 @@
+:root {
+    --primary: #2563eb;
+    --secondary: #1e293b;
+    --accent: #06b6d4;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --bg-dark: #0f172a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary) 100%);
+    color: white;
+    min-height: 100vh;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+}
+
+.btn-success { background: var(--success); border: none; }
+.btn-danger { background: var(--danger); border: none; }
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px currentColor;
+}
+
+.status-normal { background: var(--success); color: var(--success); }
+.status-gawat { background: var(--danger); color: var(--danger); animation: blink 1s infinite; }
+
+@keyframes blink { 50% { opacity: 0.5; } }
+
+@media (max-width: 768px) {
+    .content-area { padding: 60px 15px 15px 15px; }
+}

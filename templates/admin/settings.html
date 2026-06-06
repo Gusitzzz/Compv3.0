@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-card p-4 mb-4">
+    <h4 class="mb-0"><i class="fas fa-sliders-h me-2 text-info"></i>{{ t('threshold_settings') }}</h4>
+    <p class="text-white-50 mb-0">Atur batas parameter per unit</p>
+</div>
+
+<div class="row g-4">
+    <!-- Threshold Settings -->
+    <div class="col-md-6">
+        <div class="glass-card p-4">
+            <h5 class="mb-4 border-bottom border-white border-opacity-10 pb-3">
+                <i class="fas fa-bell me-2 text-warning"></i>Batas Parameter
+            </h5>
+            
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-info">
+                        <i class="fas fa-thermometer-half me-1"></i> {{ t('temperature') }} Max (°C)
+                    </label>
+                    <input type="number" name="temp_max" class="form-control bg-dark bg-opacity-50" value="{{ thresholds.temp_max }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-warning">
+                        <i class="fas fa-wave-square me-1"></i> {{ t('vibration') }} Max
+                    </label>
+                    <input type="number" name="vib_max" class="form-control bg-dark bg-opacity-50" value="{{ thresholds.vib_max }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-success">
+                        <i class="fas fa-volume-up me-1"></i> {{ t('noise') }} Max (dB)
+                    </label>
+                    <input type="number" name="noise_max" class="form-control bg-dark bg-opacity-50" value="{{ thresholds.noise_max }}">
+                </div>
+                
+                <button type="submit" class="btn btn-info w-100 rounded-pill" name="save_threshold" value="1">
+                    <i class="fas fa-save me-2"></i>{{ t('save_changes') }}
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Correction Per Unit -->
+    <div class="col-md-6">
+        <div class="glass-card p-4">
+            <h5 class="mb-4 border-bottom border-white border-opacity-10 pb-3">
+                <i class="fas fa-balance-scale me-2 text-info"></i>{{ t('correction_factor') }} Per Unit
+            </h5>
+            
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-white-50">Pilih Unit</label>
+                    <select name="unit_corr" class="form-control bg-dark bg-opacity-50" onchange="this.form.submit()" id="unitSelect">
+                        <option value="Unit 1">Unit 1</option>
+                        <option value="Unit 2">Unit 2</option>
+                        <option value="Unit 3">Unit 3</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-info">
+                        <i class="fas fa-thermometer-half me-1"></i> Suhu
+                    </label>
+                    <div class="input-group">
+                        <input type="number" name="temp_corr" step="0.01" min="0.1" max="3.0" class="form-control bg-dark bg-opacity-50" value="{{ correction[selected_unit].temp }}">
+                        <span class="input-group-text bg-dark bg-opacity-50 text-white">× value</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-warning">
+                        <i class="fas fa-wave-square me-1"></i> Getaran
+                    </label>
+                    <div class="input-group">
+                        <input type="number" name="vib_corr" step="0.01" min="0.1" max="3.0" class="form-control bg-dark bg-opacity-50" value="{{ correction[selected_unit].vib }}">
+                        <span class="input-group-text bg-dark bg-opacity-50 text-white">× value</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-success">
+                        <i class="fas fa-volume-up me-1"></i> Kebisingan
+                    </label>
+                    <div class="input-group">
+                        <input type="number" name="noise_corr" step="0.01" min="0.1" max="3.0" class="form-control bg-dark bg-opacity-50" value="{{ correction[selected_unit].noise }}">
+                        <span class="input-group-text bg-dark bg-opacity-50 text-white">× value</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-info w-100 rounded-pill" name="save_corr" value="1">
+                    <i class="fas fa-save me-2"></i>{{ t('save_changes') }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('unitSelect').value = '{{ selected_unit }}';
+</script>
+{% endblock %}

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Ammonia Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --accent: #06b6d4;
+            --accent-light: #67e8f9;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary) 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .menu-toggle {
+            display: block;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .menu-toggle:hover { 
+            background: var(--accent-light); 
+            color: var(--secondary);
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: rgba(30, 41, 59, 0.98);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .sidebar.show { transform: translateX(0); }
+        
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+
+        .brand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-custom {
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-custom:hover, .nav-custom.active {
+            background: rgba(6, 182, 212, 0.15);
+            color: white;
+            border-left-color: var(--accent);
+        }
+        .nav-custom i { width: 25px; }
+
+        .content-area { 
+            padding: 30px; 
+            padding-top: 70px;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 30px;
+            padding-right: 30px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px currentColor;
+        }
+        .status-normal { background: var(--success); color: var(--success); }
+        .status-perlu-cek { background: var(--warning); color: var(--warning); }
+        .status-gawat { background: var(--danger); color: var(--danger); animation: blink 1s infinite; }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
+        
+        .lang-btn {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            border-radius: 15px;
+            text-decoration: none;
+        }
+        .lang-btn:hover { background: rgba(255,255,255,0.2); }
+        .lang-btn.active { background: var(--accent); color: white; }
+        
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+        }
+        .device-status.online { border-left: 3px solid var(--success); }
+        .device-status.offline { border-left: 3px solid var(--danger); }
+        .device-status .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .device-status.online .indicator { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .device-status.offline .indicator { background: var(--danger); }
+
+        @media (max-width: 768px) {
+            .content-area { padding: 60px 15px 15px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuBtn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+
+<div class="container-fluid">
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <i class="fas fa-fan me-2"></i> AMMONIA<br>COMPRESSOR
+        </div>
+        <div class="py-3">
+            <div class="px-3 pb-3 border-bottom border-white border-opacity-10">
+                <small class="text-white-50">{{ t('logged_in_as') }}</small><br>
+                <span class="fw-bold text-info">{{ session['user'].upper() }}</span>
+            </div>
+        </div>
+        
+        <nav class="nav flex-column">
+            <a href="{{ url_for('dashboard') }}" class="nav-custom {{ 'active' if title == 'Dashboard' else '' }}">
+                <i class="fas fa-chart-line"></i> {{ t('dashboard') }}
+            </a>
+            
+            <div class="px-3 py-2 mt-3 text-white-50 small">{{ t('unit_menu') }}</div>
+            
+            <a href="{{ url_for('detail', name='Unit 1') }}" class="nav-custom">Unit 1</a>
+            <a href="{{ url_for('detail', name='Unit 2') }}" class="nav-custom">Unit 2</a>
+            <a href="{{ url_for('detail', name='Unit 3') }}" class="nav-custom">Unit 3</a>
+            
+            <div class="px-3 py-2 mt-3 text-white-50 small">{{ t('system') }}</div>
+            
+            <a href="{{ url_for('history') }}" class="nav-custom {{ 'active' if title == 'Alarm History' else '' }}">
+                <i class="fas fa-bell"></i> {{ t('alarm_history') }}
+            </a>
+            <a href="{{ url_for('database_page') }}" class="nav-custom {{ 'active' if title == 'Database' else '' }}">
+                <i class="fas fa-database"></i> {{ t('database') }}
+            </a>
+            <a href="{{ url_for('settings') }}" class="nav-custom {{ 'active' if title == 'Settings' else '' }}">
+                <i class="fas fa-sliders-h"></i> {{ t('settings') }}
+            </a>
+            <a href="{{ url_for('manage_users') }}" class="nav-custom {{ 'active' if title == 'User Admin' else '' }}">
+                <i class="fas fa-user-shield"></i> {{ t('users') }}
+            </a>
+            
+            <a href="{{ url_for('logout') }}" class="nav-custom text-danger mt-4">
+                <i class="fas fa-sign-out-alt"></i> {{ t('logout') }}
+            </a>
+        </nav>
+        
+        <div class="px-3 py-3 mt-3 border-top border-white border-opacity-10">
+            <small class="text-white-50 d-block mb-2">Language</small>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('set_language', lang='en') }}" class="lang-btn bg-white bg-opacity-10 {{ 'active' if session.get('lang','en')=='en' else '' }}">EN</a>
+                <a href="{{ url_for('set_language', lang='id') }}" class="lang-btn bg-white bg-opacity-10 {{ 'active' if session.get('lang')=='id' else '' }}">ID</a>
+                <a href="{{ url_for('set_language', lang='zh') }}" class="lang-btn bg-white bg-opacity-10 {{ 'active' if session.get('lang')=='zh' else '' }}">中文</a>
+            </div>
+        </div>
+        
+        <div class="px-3 py-3 mt-2 border-top border-white border-opacity-10">
+            <small class="text-white-50 d-block mb-2">Status</small>
+            {% if units %}
+            {% for name, data in units.items() %}
+            <div class="device-status {{ 'online' if data.online else 'offline' }} mb-2">
+                <span class="indicator"></span><small>{{ name }}</small>
+                <span class="badge bg-{{ 'success' if data.online else 'danger' }} ms-auto">
+                    {{ t('online') if data.online else t('offline') }}
+                </span>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content-area" id="mainContent">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-0 fw-bold">{{ title }}</h2>
+                <p class="text-white-50 mb-0">{{ t('real_time_monitoring') }}</p>
+            </div>
+            <div class="text-end">
+                <div class="user-info"><i class="far fa-clock"></i> <span id="clock"></span></div>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} bg-{{ category }}-subtle border-0">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // =============================================
+    // FIX #1: Struktur HTML diperbaiki
+    // FIX #2: Hanya satu mekanisme refresh (AJAX),
+    //         meta refresh & location.reload dihapus
+    // =============================================
+
+    // --- Sidebar ---
+    let sidebarTimeout;
+    
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
+        sidebar.classList.toggle('show');
+        updateMenuBtn(sidebar.classList.contains('show'));
+    }
+
+    function updateMenuBtn(isOpen) {
+        const menuBtn = document.getElementById('menuBtn');
+        if (isOpen) {
+            menuBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            menuBtn.style.background = '#67e8f9';
+            menuBtn.style.color = '#0f172a';
+            menuBtn.style.boxShadow = 'none';
+            menuBtn.style.left = '220px';
+        } else {
+            menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            menuBtn.style.background = '#06b6d4';
+            menuBtn.style.color = 'white';
+            menuBtn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+            menuBtn.style.left = '15px';
+        }
+    }
+    
+    document.getElementById('sidebar').addEventListener('mouseenter', function() {
+        clearTimeout(sidebarTimeout);
+        document.getElementById('sidebar').classList.add('show');
+        updateMenuBtn(true);
+    });
+    
+    document.getElementById('sidebar').addEventListener('mouseleave', function() {
+        clearTimeout(sidebarTimeout);
+        sidebarTimeout = setTimeout(function() {
+            document.getElementById('sidebar').classList.remove('show');
+            updateMenuBtn(false);
+        }, 3000);
+    });
+    
+    // --- Clock ---
+    function updateClock() {
+        var now = new Date();
+        document.getElementById('clock').innerText = 
+            now.getFullYear() + '-' + 
+            (now.getMonth()+1).toString().padStart(2,'0') + '-' + 
+            now.getDate().toString().padStart(2,'0') + ' ' + 
+            now.getHours().toString().padStart(2,'0') + ':' + 
+            now.getMinutes().toString().padStart(2,'0') + ':' + 
+            now.getSeconds().toString().padStart(2,'0');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- FIX #2: AJAX refresh HANYA untuk dashboard ---
+    // Tidak ada meta refresh, tidak ada location.reload()
+    // Semua halaman lain tidak auto-refresh
+    var path = window.location.pathname;
+    if (path === '/dashboard/' || path === '/dashboard') {
+        setInterval(function() {
+            fetch('/api/refresh_data/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.units) return;
+
+                ['Unit 1','Unit 2','Unit 3'].forEach(function(unit, i) {
+                    var idx = i + 1;
+                    var u = data.units[unit];
+                    if (!u) return;
+
+                    // Update nilai angka
+                    var tempEl  = document.getElementById('temp'  + idx);
+                    var vibEl   = document.getElementById('vib'   + idx);
+                    var noiseEl = document.getElementById('noise' + idx);
+                    if (tempEl)  tempEl.innerText  = u.temp.toFixed(1) + '°C';
+                    if (vibEl)   vibEl.innerText   = u.vib.toFixed(1);
+                    if (noiseEl) noiseEl.innerText = u.noise.toFixed(1) + ' dB';
+
+                    // FIX #8: Update badge warna status
+                    var badgeEl = document.getElementById('status' + idx + '_badge');
+                    if (badgeEl) {
+                        var badgeClass, dotClass, label;
+                        if (u.status === 'Gawat') {
+                            badgeClass = 'badge bg-danger bg-opacity-25 py-2 px-3';
+                            dotClass   = 'status-dot status-gawat me-2';
+                            label      = 'BAHAYA';
+                        } else if (u.status === 'Perlu_Cek') {
+                            badgeClass = 'badge bg-warning bg-opacity-25 py-2 px-3 text-dark';
+                            dotClass   = 'status-dot status-perlu-cek me-2';
+                            label      = 'Perlu Cek';
+                        } else {
+                            badgeClass = 'badge bg-success bg-opacity-25 py-2 px-3';
+                            dotClass   = 'status-dot status-normal me-2';
+                            label      = 'Normal';
+                        }
+                        badgeEl.innerHTML =
+                            '<span class="' + badgeClass + '">' +
+                            '<span class="' + dotClass + '"></span>' +
+                            label + '</span>';
+                    }
+
+                    // Update warna nilai temp
+                    if (tempEl) {
+                        tempEl.className = 'fw-bold ' + (u.temp > 85 ? 'text-danger' : u.temp > 68 ? 'text-warning' : 'text-white');
+                    }
+                    if (vibEl) {
+                        vibEl.className = 'fw-bold ' + (u.vib > 40 ? 'text-danger' : u.vib > 32 ? 'text-warning' : 'text-white');
+                    }
+                    if (noiseEl) {
+                        noiseEl.className = 'fw-bold ' + (u.noise > 80 ? 'text-danger' : u.noise > 64 ? 'text-warning' : 'text-white');
+                    }
+                });
+
+                // Update summary cards
+                var alarmEl  = document.getElementById('total_alarms');
+                var onlineEl = document.getElementById('total_online');
+                if (alarmEl)  alarmEl.innerText  = data.active_alarms;
+                if (onlineEl) onlineEl.innerText = data.online_count + '/' + data.total;
+            })
+            .catch(function(err) { console.log('Refresh error:', err); });
+        }, 5000);
+    }
+</script>
+</body>
+</html>

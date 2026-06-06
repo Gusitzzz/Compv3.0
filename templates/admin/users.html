@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-card p-4 mb-4">
+    <h4 class="mb-0"><i class="fas fa-user-shield me-2 text-info"></i>{{ t('user_admin') }}</h4>
+    <p class="text-white-50 mb-0">Kelola pengguna sistem</p>
+</div>
+
+<div class="row g-4">
+    <!-- Add New User -->
+    <div class="col-md-5">
+        <div class="glass-card p-4">
+            <h5 class="mb-4 border-bottom border-white border-opacity-10 pb-3">
+                <i class="fas fa-user-plus me-2 text-success"></i>{{ t('register_new_user') }}
+            </h5>
+            
+            <form method="POST">
+                <input type="hidden" name="register" value="1">
+                
+                <div class="mb-3">
+                    <label class="form-label text-white-50">Username</label>
+                    <input type="text" name="new_username" class="form-control bg-dark bg-opacity-50" placeholder="Username baru" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-white-50">Password</label>
+                    <input type="text" name="new_password" class="form-control bg-dark bg-opacity-50" placeholder="Password" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-white-50">Level</label>
+                    <select name="new_level" class="form-control bg-dark bg-opacity-50">
+                        <option value="operator">Operator (View only)</option>
+                    </select>
+                    <small class="text-white-50 d-block mt-1">Hanya operator yang bisa ditambahkan</small>
+                </div>
+                
+                <button type="submit" class="btn btn-success w-100 rounded-pill">
+                    <i class="fas fa-plus me-2"></i>{{ t('add_user') }}
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- User List -->
+    <div class="col-md-7">
+        <div class="glass-card p-4">
+            <h5 class="mb-4 border-bottom border-white border-opacity-10 pb-3">
+                <i class="fas fa-users me-2 text-info"></i>{{ t('registered_users') }}
+            </h5>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>{{ t('level') }}</th>
+                            <th>{{ t('delete') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for username, user_data in users.items() %}
+                        <tr>
+                            <td>
+                                <span class="{{ 'text-warning' if username == 'admin' else '' }}">
+                                    <i class="fas fa-crown text-warning me-2" if username == 'admin'"></i>
+                                    {{ username }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if username == 'admin' %}
+                                <span class="badge bg-warning text-dark">Admin</span>
+                                {% else %}
+                                <span class="badge bg-info">Operator</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if username != 'admin' %}
+                                <form method="POST" class="d-inline">
+                                    <input type="hidden" name="delete" value="1">
+                                    <input type="hidden" name="delete_username" value="{{ username }}">
+                                    <button type="submit" class="btn btn-sm btn-danger rounded-pill" onclick="return confirm('Hapus user {{ username }}?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="text-white-50">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Card -->
+<div class="glass-card p-4 mt-4">
+    <h6 class="text-info mb-2"><i class="fas fa-info-circle me-2"></i>Info</h6>
+    <div class="row small text-white-50">
+        <div class="col-md-6">
+            <p><span class="text-warning"><i class="fas fa-crown me-1"></i>Admin</span> - Semua akses</p>
+            <p><span class="text-info"><i class="fas fa-user me-1"></i>Operator</span> - View saja</p>
+        </div>
+        <div class="col-md-6">
+            <p>Admin tidak bisa dihapus</p>
+            <p>Password default: <b>admin</b> / <b>1234</b></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
